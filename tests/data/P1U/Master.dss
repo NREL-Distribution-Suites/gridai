@@ -1,0 +1,82 @@
+Clear
+
+New Circuit.Full_Network bus1=st_mat pu=1.0 basekV=230.0 R1=0.00001 X1=0.00001 R0=0.00001 X0=0.00001
+
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt1470/Transformers.dss
+Redirect p1uhs0_1247/Transformers.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt1469/Transformers.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt1472/Transformers.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt942/Transformers.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt104/Transformers.dss
+Redirect p1uhs1_1247/p1uhs1_1247--p1udt1324/Transformers.dss
+Redirect p1uhs1_1247/p1uhs1_1247--p1udt716/Transformers.dss
+Redirect p1uhs1_1247/Transformers.dss
+Redirect p1uhs2_1247/Transformers.dss
+Redirect p1uhs2_1247/p1uhs2_1247--p1udt813/Transformers.dss
+Redirect p1uhs3_1247/Transformers.dss
+Redirect p1uhs3_1247/p1uhs3_1247--p1udt1824/Transformers.dss
+Redirect p1uhs3_1247/p1uhs3_1247--p1udt1696/Transformers.dss
+Redirect subtransmission/Transformers.dss
+Redirect p1uhs0_1247/Regulators.dss
+Redirect p1uhs1_1247/Regulators.dss
+Redirect p1uhs1_1247/p1uhs1_1247--p1udt716/Regulators.dss
+Redirect p1uhs2_1247/Regulators.dss
+Redirect p1uhs3_1247/Regulators.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt1470/Loads.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt1469/Loads.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt1472/Loads.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt942/Loads.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt104/Loads.dss
+Redirect p1uhs1_1247/p1uhs1_1247--p1udt1324/Loads.dss
+Redirect p1uhs1_1247/p1uhs1_1247--p1udt716/Loads.dss
+Redirect p1uhs2_1247/p1uhs2_1247--p1udt813/Loads.dss
+Redirect p1uhs3_1247/p1uhs3_1247--p1udt1824/Loads.dss
+Redirect p1uhs3_1247/p1uhs3_1247--p1udt1696/Loads.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt1470/LineCodes.dss
+Redirect p1uhs0_1247/LineCodes.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt1469/LineCodes.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt1472/LineCodes.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt942/LineCodes.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt104/LineCodes.dss
+Redirect p1uhs1_1247/p1uhs1_1247--p1udt1324/LineCodes.dss
+Redirect p1uhs1_1247/p1uhs1_1247--p1udt716/LineCodes.dss
+Redirect p1uhs1_1247/LineCodes.dss
+Redirect p1uhs2_1247/LineCodes.dss
+Redirect p1uhs2_1247/p1uhs2_1247--p1udt813/LineCodes.dss
+Redirect p1uhs3_1247/LineCodes.dss
+Redirect p1uhs3_1247/p1uhs3_1247--p1udt1824/LineCodes.dss
+Redirect p1uhs3_1247/p1uhs3_1247--p1udt1696/LineCodes.dss
+Redirect subtransmission/LineCodes.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt1470/Lines.dss
+Redirect p1uhs0_1247/Lines.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt1469/Lines.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt1472/Lines.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt942/Lines.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt104/Lines.dss
+Redirect p1uhs1_1247/p1uhs1_1247--p1udt1324/Lines.dss
+Redirect p1uhs1_1247/p1uhs1_1247--p1udt716/Lines.dss
+Redirect p1uhs1_1247/Lines.dss
+Redirect p1uhs2_1247/Lines.dss
+Redirect p1uhs2_1247/p1uhs2_1247--p1udt813/Lines.dss
+Redirect p1uhs3_1247/Lines.dss
+Redirect p1uhs3_1247/p1uhs3_1247--p1udt1824/Lines.dss
+Redirect p1uhs3_1247/p1uhs3_1247--p1udt1696/Lines.dss
+Redirect subtransmission/Lines.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt1470/Capacitors.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt1469/Capacitors.dss
+Redirect p1uhs0_1247/p1uhs0_1247--p1udt1472/Capacitors.dss
+Redirect p1uhs1_1247/p1uhs1_1247--p1udt1324/Capacitors.dss
+Redirect p1uhs1_1247/p1uhs1_1247--p1udt716/Capacitors.dss
+Redirect p1uhs2_1247/p1uhs2_1247--p1udt813/Capacitors.dss
+Redirect p1uhs3_1247/p1uhs3_1247--p1udt1696/Capacitors.dss
+new monitor.m1 element=Line.breaker(r:p1uts0_69-st_mat)p1u_11873 mode=0
+new monitor.m2 element=Line.breaker(r:p1uts0_69-st_mat)p1u_11873 mode=1
+new energymeter.m3 Line.breaker(r:p1uts0_69-st_mat)p1u_11873
+
+Set Voltagebases=[0.12, 0.208, 0.48, 7.2, 12.47, 69.0, 230.0]
+
+Calcvoltagebases
+
+Buscoords Buscoords.dss
+set maxcontroliter=50
+
