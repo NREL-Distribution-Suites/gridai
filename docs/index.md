@@ -1,7 +1,5 @@
 # Welcome to Graph Dataset Repo
 
-[View full docs here](https://pages.github.nrel.gov/GATES-TLDRD/graph-dataset/)
-
 ## Installation
 
 Use following commands to install

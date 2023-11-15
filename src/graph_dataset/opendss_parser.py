@@ -12,6 +12,7 @@ import networkx as nx
 # internal imports
 from graph_dataset.exceptions import OpenDSSCommandError
 from graph_dataset import interfaces
+from graph_dataset.util import timeit
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +26,8 @@ UNIT_MAPPER = {
     6: 0.0000254,
     7: 0.00001,
 }
+
+PHASE_MAPPER = {1: "A", 2: "B", 3: "C", 0: "N"}
 
 
 def add_transformer_edges(dss_instance: dss, graph: nx.Graph) -> nx.Graph:
@@ -110,10 +113,13 @@ def add_buses_as_nodes(dss_instance: dss, graph: nx.Graph) -> nx.Graph:
     for bus in dss_instance.Circuit.AllBusNames():
         dss_instance.Circuit.SetActiveBus(bus)
 
+        # pylint:disable=eval-used
         node_attr = interfaces.DistNodeAttrs(
-            node_type=interfaces.NodeType.bus,
             num_nodes=dss_instance.Bus.NumNodes(),
             kv_level=dss_instance.Bus.kVBase(),
+            phase_type=eval(
+                f'interfaces.PhaseType.{"".join([PHASE_MAPPER[item] for item in dss_instance.Bus.Nodes()])}'
+            ),
         )
         graph.add_node(bus, attr=node_attr)
     return graph
@@ -191,6 +197,39 @@ def execute_dss_command(dss_instance: dss, dss_command: str) -> None:
     logger.info("Sucessfully executed the command, %s", dss_command)
 
 
+def get_source_node(dss_instance: dss) -> str:
+    """Function to return source node for dss model.
+
+    Args:
+        dss_instance (dss): Instance of OpenDSSDirect
+
+    Returns:
+        str: Name of the source node
+    """
+
+    df = dss_instance.utils.class_to_dataframe("vsource")
+    source_node = df["bus1"].tolist()[0].split(".")[0]
+    return source_node
+
+
+def add_source_node(source_node: str, graph: nx.Graph) -> nx.Graph:
+    """Function to update source node in graph.
+
+    Args:
+        source_node (str): Name of source node
+        graph (nx.Graph): Graph instance
+
+    Returns:
+        nx.Graph: Updated graph instance
+    """
+
+    if graph.has_node(source_node):
+        node_attr: interfaces.DistNodeAttrs = graph.nodes[source_node]["attr"]
+        node_attr.node_type = interfaces.NodeType.source_node
+        graph.nodes[source_node]["attr"] = node_attr
+    return graph
+
+@timeit
 def get_networkx_model(master_file: str) -> nx.Graph:
     """Extract the opendss models and returns networkx
     representation of the model.
@@ -220,5 +259,11 @@ def get_networkx_model(master_file: str) -> nx.Graph:
     graph = update_pvsystem_nodes(dss, graph)
     graph = add_line_edges(dss, graph)
     graph = add_transformer_edges(dss, graph)
+    graph = add_source_node(get_source_node(dss), graph)
+
+    for node in graph.nodes:
+        node_attr: interfaces.DistNodeAttrs = graph.nodes[node]["attr"]
+        node_attr_dict = node_attr.model_dump()
+        graph.nodes[node]["attr"] = interfaces.DistNodeAttrs(**node_attr_dict)
 
     return graph
