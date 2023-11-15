@@ -30,7 +30,7 @@ Commands:
   generate-dataset  Command line function to...
 ```
 
-### How to create a dataset ?
+## How to create a dataset ?
 
 The command `generate-dataset` can convert all opendss models available in the parent folder by recursively searching for all valid opendss models.
 
