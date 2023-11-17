@@ -4,8 +4,10 @@ attributes.
 
 # standard imports
 from enum import IntEnum
-from typing import Optional
+import enum
+from typing import Optional, Any
 from typing_extensions import Annotated
+import typing
 
 # third-party imports
 # pylint:disable=import-error
@@ -26,6 +28,14 @@ class NodeType(IntEnum):
     generation_node = 3
     load_and_generation_node = 4
     other = 5
+
+
+class NumPhase(IntEnum):
+    """Interface for node type enumerator."""
+
+    single_phase = 1
+    two_phase = 2
+    three_phase = 3
 
 
 NODE_TYPE_MAPPING = {
@@ -66,10 +76,41 @@ class PhaseType(IntEnum):
 serializer = PlainSerializer(lambda x: x.value, when_used="always")
 
 
-class DistNodeAttrs(BaseModel):
+def get_embeddings(enum_type: IntEnum, value: Any):
+    """Returns embedding."""
+    return [1 if item == value else 0 for item in list(enum_type)]
+
+
+class EmbeddedModel(BaseModel):
+    """Implements get attributes for data models."""
+
+    def get_attr_list(self):
+        """Returns embeddings."""
+
+        enum_fields = [
+            field
+            for field, info in self.model_fields.items()
+            if isinstance(info.annotation, enum.EnumType)
+        ]
+        float_fields = [
+            field
+            for field, info in self.model_fields.items()
+            if info.annotation in [float, typing.Optional[float]]
+        ]
+
+        return [
+            el
+            for field in enum_fields
+            for el in get_embeddings(
+                self.model_fields[field].annotation, getattr(self, field)
+            )
+        ] + [getattr(self, field) for field in float_fields]
+
+
+class DistNodeAttrs(EmbeddedModel):
     """Interface for distribution node attributes."""
 
-    node_type: Annotated[Optional[NodeType], serializer] = None
+    node_type: Annotated[NodeType, serializer] = None
     active_demand_kw: Optional[float] = 0.0
     reactive_demand_kw: Optional[float] = 0.0
     active_generation_kw: Optional[float] = 0.0
@@ -91,10 +132,10 @@ class DistNodeAttrs(BaseModel):
         return self
 
 
-class DistEdgeAttrs(BaseModel):
+class DistEdgeAttrs(EmbeddedModel):
     """Interface for distribution edge attributes."""
 
-    num_phase: conint(ge=1, le=3)
+    num_phase: Annotated[NumPhase, serializer]
     capacity_kva: confloat(ge=0)
     edge_type: Annotated[DistEdgeType, serializer]
     length_miles: confloat(ge=0)
