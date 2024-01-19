@@ -2,8 +2,10 @@
 # standard imports
 import time
 
+
 def timeit(f):
-    """ Timing decorator."""
+    """Timing decorator."""
+
     def timed(*args, **kw):
         start_time = time.time()
         result = f(*args, **kw)

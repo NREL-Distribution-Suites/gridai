@@ -71,6 +71,16 @@ def create_dataset(
     """
 
     db = SQLiteDatabase(path=sqlite_file, name=table_name)
-    for id_, file_path in enumerate(folder_path.rglob(master_file_name)):
-        db[id_] = get_data_object(get_networkx_model(str(file_path)))
-    db.close()
+    try:
+        counter = 0
+        for file_path in folder_path.rglob(master_file_name):
+            if len(file_path.parent.name.split("--")) != 2:
+                continue
+
+            networks = get_networkx_model(str(file_path))
+            if networks is not None:
+                for network_ in networks:
+                    db[counter] = get_data_object(network_)
+                    counter += 1
+    finally:
+        db.close()

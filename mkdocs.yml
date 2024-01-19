@@ -56,3 +56,5 @@ markdown_extensions:
 
 nav:
   - Welcome: index.md
+  - References:
+      interfaces: interface.md

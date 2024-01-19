@@ -2,6 +2,8 @@
 
 
 # standard imports
+from re import S
+from typing import Optional
 from pathlib import Path
 import logging
 
@@ -49,7 +51,7 @@ def add_transformer_edges(dss_instance: dss, graph: nx.Graph) -> nx.Graph:
         edge_attrs = interfaces.DistEdgeAttrs(
             num_phase=dss_instance.CktElement.NumPhases(),
             capacity_kva=dss_instance.Transformers.kVA(),
-            edge_type=interfaces.DistEdgeType.transformer,
+            edge_type=interfaces.DistEdgeType.TRANSFORMER,
             length_miles=0,
             r0=0,
             r1=dss_instance.Transformers.R(),  # Percentage resistance of active winding
@@ -77,13 +79,13 @@ def add_line_edges(dss_instance: dss, graph: nx.Graph) -> nx.Graph:
         buses = dss_instance.CktElement.BusNames()
         bus1, bus2 = buses[0].split(".")[0], buses[1].split(".")[0]
 
-        bus1_attr: interfaces.DistNodeAttrs = graph.nodes[bus1].get('attr')
+        bus1_attr: interfaces.DistNodeAttrs = graph.nodes[bus1].get("attr")
 
         edge_attrs = interfaces.DistEdgeAttrs(
             num_phase=dss_instance.CktElement.NumPhases(),
             capacity_kva=(dss_instance.Lines.NormAmps() * bus1_attr.kv_level)
             * (1.713 if dss_instance.CktElement.NumPhases() > 1 else 1),
-            edge_type=interfaces.DistEdgeType.conductor,
+            edge_type=interfaces.DistEdgeType.CONDUCTOR,
             length_miles=UNIT_MAPPER[dss_instance.Lines.Units()]
             * dss_instance.Lines.Length()
             * 0.621,
@@ -113,13 +115,14 @@ def add_buses_as_nodes(dss_instance: dss, graph: nx.Graph) -> nx.Graph:
     for bus in dss_instance.Circuit.AllBusNames():
         dss_instance.Circuit.SetActiveBus(bus)
 
-        # pylint:disable=eval-used
+        phase_type = "".join(
+            [PHASE_MAPPER[item] for item in dss_instance.Bus.Nodes()]
+        )
+
         node_attr = interfaces.DistNodeAttrs(
             num_nodes=dss_instance.Bus.NumNodes(),
             kv_level=dss_instance.Bus.kVBase(),
-            phase_type=eval(
-                f'interfaces.PhaseType.{"".join([PHASE_MAPPER[item] for item in dss_instance.Bus.Nodes()])}'
-            ),
+            phase_type=getattr(interfaces.PhaseType, phase_type),
         )
         graph.add_node(bus, attr=node_attr)
     return graph
@@ -144,7 +147,7 @@ def update_pvsystem_nodes(dss_instance: dss, graph: nx.Graph) -> nx.Graph:
         if graph.has_node(bus1):
             node_attr: interfaces.DistNodeAttrs = graph.nodes[bus1].get("attr")
             node_attr.active_generation_kw += dss_instance.PVSystems.Pmpp()
-            graph.nodes[bus1]['attr'] = node_attr
+            graph.nodes[bus1]["attr"] = node_attr
 
         flag = dss_instance.PVsystems.Next()
     return graph
@@ -170,7 +173,7 @@ def update_load_nodes(dss_instance: dss, graph: nx.Graph) -> nx.Graph:
             node_attr: interfaces.DistNodeAttrs = graph.nodes[bus1].get("attr")
             node_attr.active_demand_kw += dss_instance.Loads.kW()
             node_attr.reactive_demand_kw += dss_instance.Loads.kvar()
-            graph.nodes[bus1]['attr'] = node_attr
+            graph.nodes[bus1]["attr"] = node_attr
 
         flag = dss_instance.Loads.Next()
     return graph
@@ -225,12 +228,55 @@ def add_source_node(source_node: str, graph: nx.Graph) -> nx.Graph:
 
     if graph.has_node(source_node):
         node_attr: interfaces.DistNodeAttrs = graph.nodes[source_node]["attr"]
-        node_attr.node_type = interfaces.NodeType.source_node
+        node_attr.node_type = interfaces.NodeType.SOURCE
         graph.nodes[source_node]["attr"] = node_attr
     return graph
 
+
+def get_transformer_sub_graphs(graph: nx.Graph) -> list[nx.Graph]:
+    """Method to get subgraphs for each distribution transformers."""
+    sub_graphs = []
+    tr_nodes = [
+        edge[0]
+        for edge in graph.edges
+        if graph.get_edge_data(*edge)["attr"].edge_type
+        == interfaces.DistEdgeType.TRANSFORMER
+    ]
+    source_node = [
+        node
+        for node in graph.nodes
+        if graph.nodes[node]["attr"].node_type == interfaces.NodeType.SOURCE
+    ]
+    dfs_tree = nx.dfs_tree(graph, source=source_node[0])
+
+    for tr_node in tr_nodes:
+        dfs_sub_tree = nx.dfs_tree(dfs_tree, source=tr_node).to_undirected()
+
+        for node in dfs_sub_tree.nodes:
+            dfs_sub_tree.nodes[node]["attr"] = graph.nodes[node]["attr"]
+        for edge in dfs_sub_tree.edges:
+            dfs_sub_tree[edge[0]][edge[1]]["attr"] = graph.get_edge_data(*edge)[
+                "attr"
+            ]
+
+        if (
+            len(
+                [
+                    edge_
+                    for edge_ in dfs_sub_tree.edges
+                    if dfs_sub_tree.get_edge_data(*edge_)["attr"].edge_type
+                    == interfaces.DistEdgeType.TRANSFORMER
+                ]
+            )
+            <2
+        ):
+            sub_graphs.append(dfs_sub_tree)
+
+    return sub_graphs
+
+
 @timeit
-def get_networkx_model(master_file: str) -> nx.Graph:
+def get_networkx_model(master_file: str) -> Optional[list[nx.Graph]]:
     """Extract the opendss models and returns networkx
     representation of the model.
 
@@ -266,4 +312,13 @@ def get_networkx_model(master_file: str) -> nx.Graph:
         node_attr_dict = node_attr.model_dump()
         graph.nodes[node]["attr"] = interfaces.DistNodeAttrs(**node_attr_dict)
 
-    return graph
+    components = list(nx.connected_components(graph))
+    if len(components) > 1:
+        graph = graph.subgraph(max(components, key=len))
+
+    loops = list(nx.simple_cycles(graph))
+    if loops:
+        print(f"This network has loop {loops=}")
+        return None
+
+    return get_transformer_sub_graphs(graph=graph)
