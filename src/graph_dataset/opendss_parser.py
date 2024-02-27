@@ -1,6 +1,5 @@
 """ This module contains an opendss parser utility functions. """
 
-
 # standard imports
 from re import S
 from typing import Optional
@@ -236,8 +235,8 @@ def add_source_node(source_node: str, graph: nx.Graph) -> nx.Graph:
 def get_transformer_sub_graphs(graph: nx.Graph) -> list[nx.Graph]:
     """Method to get subgraphs for each distribution transformers."""
     sub_graphs = []
-    tr_nodes = [
-        edge[0]
+    tr_edges = [
+        edge
         for edge in graph.edges
         if graph.get_edge_data(*edge)["attr"].edge_type
         == interfaces.DistEdgeType.TRANSFORMER
@@ -249,8 +248,10 @@ def get_transformer_sub_graphs(graph: nx.Graph) -> list[nx.Graph]:
     ]
     dfs_tree = nx.dfs_tree(graph, source=source_node[0])
 
-    for tr_node in tr_nodes:
-        dfs_sub_tree = nx.dfs_tree(dfs_tree, source=tr_node).to_undirected()
+    def _get_subtree(source_node_: str) -> list[nx.DiGraph, int]:
+        dfs_sub_tree = nx.dfs_tree(
+            dfs_tree, source=source_node_
+        ).to_undirected()
 
         for node in dfs_sub_tree.nodes:
             dfs_sub_tree.nodes[node]["attr"] = graph.nodes[node]["attr"]
@@ -258,19 +259,27 @@ def get_transformer_sub_graphs(graph: nx.Graph) -> list[nx.Graph]:
             dfs_sub_tree[edge[0]][edge[1]]["attr"] = graph.get_edge_data(*edge)[
                 "attr"
             ]
+        num_trans = len(
+            [
+                edge_
+                for edge_ in dfs_sub_tree.edges
+                if dfs_sub_tree.get_edge_data(*edge_)["attr"].edge_type
+                == interfaces.DistEdgeType.TRANSFORMER
+            ]
+        )
+        return [dfs_sub_tree, num_trans]
 
-        if (
-            len(
-                [
-                    edge_
-                    for edge_ in dfs_sub_tree.edges
-                    if dfs_sub_tree.get_edge_data(*edge_)["attr"].edge_type
-                    == interfaces.DistEdgeType.TRANSFORMER
-                ]
-            )
-            <2
-        ):
-            sub_graphs.append(dfs_sub_tree)
+    for tr_edge in tr_edges:
+        for tr_node in tr_edge:
+            dfs_sub_graph, num_trans = _get_subtree(tr_node)
+            if num_trans > 0:
+                break
+
+        if num_trans == 1:
+            dfs_sub_graph.nodes[tr_node][
+                "attr"
+            ].node_type = interfaces.NodeType.SOURCE
+            sub_graphs.append(dfs_sub_graph)
 
     return sub_graphs
 
