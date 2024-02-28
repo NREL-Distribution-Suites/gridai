@@ -1,7 +1,6 @@
 """ This module implements a class for loading 
 training graphs from smartds datasets."""
 
-
 # standard imports
 from pathlib import Path
 
@@ -11,7 +10,11 @@ from torch_geometric.data import Data, SQLiteDatabase
 import torch
 
 # internal imports
-from graph_dataset.opendss_parser import get_networkx_model
+from graph_dataset.opendss_parser import (
+    get_networkx_model,
+    get_node_graphs,
+    get_transformer_sub_graphs,
+)
 from graph_dataset import interfaces
 from graph_dataset.util import timeit
 
@@ -59,6 +62,9 @@ def create_dataset(
     sqlite_file: str = "dataset.sqlite",
     table_name: str = "data_table",
     master_file_name: str = "Master.dss",
+    dist_xmfr_graphs: bool = True,
+    min_num_transformers: int | None = None,
+    max_num_transformers: int | None = None,
 ) -> None:
     """Function to create a dataset. Explores all master.dss file recursively
     in the specified folder path and creates a sqlite database.
@@ -77,7 +83,16 @@ def create_dataset(
             if len(file_path.parent.name.split("--")) != 2:
                 continue
 
-            networks = get_networkx_model(str(file_path))
+            if dist_xmfr_graphs:
+                networks = get_transformer_sub_graphs(
+                    get_networkx_model(str(file_path))
+                )
+            else:
+                networks = get_node_graphs(
+                    get_networkx_model(str(file_path)),
+                    lt=min_num_transformers,
+                    gt=max_num_transformers,
+                )
             if networks is not None:
                 for network_ in networks:
                     db[counter] = get_data_object(network_)

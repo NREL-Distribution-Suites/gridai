@@ -1,5 +1,7 @@
 """ Command line utilities for generating dataset."""
+
 # standard imports
+from email.policy import default
 from pathlib import Path
 
 # third party imports
@@ -38,10 +40,47 @@ from graph_dataset.smartds import create_dataset
     show_default=True,
     help="Name of master dss file to search for.",
 )
-def generate_dataset(folder_path, sqlite_file, table_name, master_file):
+@click.option(
+    "-se",
+    "--is-secondary",
+    default=True,
+    show_default=True,
+    help="Generate secondary graphs",
+)
+@click.option(
+    "-lt",
+    "--min-transformers",
+    default=3,
+    show_default=True,
+    help="Minimum number of transformers to include in the graph.",
+)
+@click.option(
+    "-gt",
+    "--max-transformers",
+    default=10,
+    show_default=True,
+    help="Maximum number of transformers to include in the graph.",
+)
+def generate_dataset(
+    folder_path,
+    sqlite_file,
+    table_name,
+    master_file,
+    is_secondary,
+    min_transformers,
+    max_transformers,
+):
     """Command line function to generate geojsons from opendss model"""
 
-    create_dataset(Path(folder_path), sqlite_file, table_name, master_file)
+    create_dataset(
+        Path(folder_path),
+        sqlite_file,
+        table_name,
+        master_file,
+        dist_xmfr_graphs=bool(is_secondary),
+        min_num_transformers=int(min_transformers),
+        max_num_transformers=int(max_transformers),
+    )
 
 
 @click.command()
@@ -63,10 +102,9 @@ def generate_dataset(folder_path, sqlite_file, table_name, master_file):
     help="CSV file path for dumping stats.",
 )
 def generate_stats(file_path: str, out_path: str, table_name: str):
-    """ Function to dump stats around the dataset."""
+    """Function to dump stats around the dataset."""
     df_ = analyze_dataset(file_path, table_name)
     df_.write_csv(out_path)
-
 
 
 @click.group()
