@@ -83,3 +83,14 @@ DistEdgeAttrs(
     x1=1.0800000429153442
 )
 ```
+
+## Plotting the dataset
+
+You can use following command to plot the dataset.
+
+```python
+>>> from graph_dataset.plot_dataset import plot_dataset
+>>> from torch_geometric.data import SQLiteDatabase
+>>> db = SQLiteDatabase(path="dataset.sqlite",name="data_table")
+>>> plot_dataset(db[0])
+```

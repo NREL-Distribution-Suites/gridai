@@ -28,7 +28,8 @@ dependencies = [
   "pytest",
   "pandas",
   "networkx",
-  "polars"
+  "polars",
+  "matplotlib"
 ]
 
 [project.optional-dependencies]
