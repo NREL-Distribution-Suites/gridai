@@ -1,9 +1,9 @@
 """ This module contains an opendss parser utility functions. """
 
 # standard imports
-from typing import Optional
 from pathlib import Path
 import logging
+import copy
 
 # third-party imports
 import opendssdirect as dss
@@ -326,7 +326,7 @@ def get_node_graphs(graph: nx.Graph, lt: int, gt: int) -> list[nx.Graph]:
 
         if lt <= num_trans <= gt:
             dfs_sub_graph.nodes[node]["attr"].node_type = NodeType.SOURCE
-            sub_graphs.append(dfs_sub_graph)
+            sub_graphs.append(copy.deepcopy(dfs_sub_graph))
 
     return sub_graphs
 
@@ -351,7 +351,7 @@ def get_transformer_sub_graphs(graph: nx.Graph) -> list[nx.Graph]:
 
         if num_trans == 1:
             dfs_sub_graph.nodes[tr_node]["attr"].node_type = NodeType.SOURCE
-            sub_graphs.append(dfs_sub_graph)
+            sub_graphs.append(copy.deepcopy(dfs_sub_graph))
 
     return sub_graphs
 

@@ -16,10 +16,7 @@ from graph_dataset.opendss_parser import (
     get_transformer_sub_graphs,
 )
 from graph_dataset import interfaces
-from graph_dataset.util import timeit
 
-
-@timeit
 def get_data_object(graph: nx.Graph):
     """Function to create pytorch data object from networkx graph."""
 
