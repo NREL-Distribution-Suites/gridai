@@ -204,8 +204,8 @@ class DistEdgeAttrs(EmbeddedModel):
 
     """
 
-    num_phase: Annotated[NumPhase, serializer]
-    capacity_kva: Annotated[float, Field(ge=0)]
+    # num_phase: Annotated[NumPhase, serializer]
+    capacity_kva: Annotated[float, Field()]
     edge_type: Annotated[DistEdgeType, serializer]
     length_miles: Annotated[float, Field(ge=0)]
     r0: float

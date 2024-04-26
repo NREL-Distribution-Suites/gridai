@@ -40,7 +40,7 @@ def plot_dataset(data: Data) -> None:
         for x in zip(list(data.edge_index[0]), list(data.edge_index[1]))
     ]
     edge_attrs = {
-        edge_indexes[id_]: DistEdgeAttrs.from_array(item).model_dump()
+        edge_indexes[id_]: DistEdgeAttrs.from_array(item[3:]).model_dump() # TODO: Remove [3:] later
         for id_, item in enumerate(data.edge_attr)
     }
 
