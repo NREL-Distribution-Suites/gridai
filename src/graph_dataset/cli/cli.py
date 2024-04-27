@@ -1,23 +1,19 @@
-""" Command line utilities for generating dataset."""
+"""Command line utilities for generating dataset."""
 
-# standard imports
-from email.policy import default
 from pathlib import Path
 
-# third party imports
 import click
 from graph_dataset.analyze_dataset import analyze_dataset
 from graph_dataset.constants import DATA_TABLE_NAME
 
-# internal imports
-from graph_dataset.smartds import create_dataset
+from graph_dataset.create_dataset import create_dataset
 
 
 @click.command()
 @click.option(
-    "-f",
-    "--folder-path",
-    help="Parent folder to search for Master.dss files.",
+    "-j",
+    "--json-file",
+    help="Path to system JSON file.",
 )
 @click.option(
     "-s",
@@ -32,13 +28,6 @@ from graph_dataset.smartds import create_dataset
     default="data_table",
     show_default=True,
     help="Table name for dumping",
-)
-@click.option(
-    "-m",
-    "--master-file",
-    default="Master.dss",
-    show_default=True,
-    help="Name of master dss file to search for.",
 )
 @click.option(
     "-se",
@@ -62,10 +51,9 @@ from graph_dataset.smartds import create_dataset
     help="Maximum number of transformers to include in the graph.",
 )
 def generate_dataset(
-    folder_path,
+    json_file,
     sqlite_file,
     table_name,
-    master_file,
     is_secondary,
     min_transformers,
     max_transformers,
@@ -73,10 +61,9 @@ def generate_dataset(
     """Command line function to generate geojsons from opendss model"""
 
     create_dataset(
-        Path(folder_path),
+        Path(json_file),
         sqlite_file,
         table_name,
-        master_file,
         dist_xmfr_graphs=bool(is_secondary),
         min_num_transformers=int(min_transformers),
         max_num_transformers=int(max_transformers),

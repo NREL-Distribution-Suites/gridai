@@ -1,4 +1,4 @@
-""" This module contains data model for node and edge
+"""This module contains data model for node and edge
 attributes.
 """
 
@@ -63,6 +63,11 @@ class PhaseType(IntEnum):
     BA = 5
     CB = 6
     AC = 7
+    S1 = 8
+    S2 = 9
+    S1S2 = 10
+    NS1S2 = 11
+    S2S1 = 10
 
 
 serializer = PlainSerializer(lambda x: x.value, when_used="always")
@@ -106,9 +111,7 @@ class EmbeddedModel(BaseModel):
         for enum_field in enum_fields:
             enum_list = list(cls.model_fields[enum_field].annotation)
             enum_length = len(enum_list)
-            sub_array = values_list[
-                current_index : (current_index + enum_length)
-            ]
+            sub_array = values_list[current_index : (current_index + enum_length)]
             for enum_value in enum_list:
                 if sub_array == get_embeddings(type(enum_value), enum_value):
                     enum_dict[enum_field] = enum_value
@@ -130,9 +133,7 @@ class EmbeddedModel(BaseModel):
         return [
             el
             for field in enum_fields
-            for el in get_embeddings(
-                self.model_fields[field].annotation, getattr(self, field)
-            )
+            for el in get_embeddings(self.model_fields[field].annotation, getattr(self, field))
         ] + [getattr(self, field) for field in float_fields]
 
 
@@ -143,8 +144,27 @@ class DistNodeAttrs(EmbeddedModel):
         ```python
         Data(x=[5, 17], edge_index=[2, 4], edge_attr=[4, 11])
 
-        tensor([0.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 0.0000,
-        1.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.1201])
+        tensor(
+            [
+                0.0000,
+                0.0000,
+                0.0000,
+                0.0000,
+                1.0000,
+                0.0000,
+                0.0000,
+                0.0000,
+                0.0000,
+                1.0000,
+                0.0000,
+                0.0000,
+                0.0000,
+                0.0000,
+                0.0000,
+                0.0000,
+                0.1201,
+            ]
+        )
         ```
 
         Each node will have 17 attributes.
@@ -187,8 +207,21 @@ class DistEdgeAttrs(EmbeddedModel):
         ```python
         Data(x=[5, 17], edge_index=[2, 4], edge_attr=[4, 11])
 
-        tensor([0.0000e+00, 1.0000e+00, 0.0000e+00, 0.0000e+00, 1.0000e+00, 4.2171e+01,
-        1.1422e-02, 3.2814e-03, 1.0668e-03, 7.4439e-03, 2.2183e-03])
+        tensor(
+            [
+                0.0000e00,
+                1.0000e00,
+                0.0000e00,
+                0.0000e00,
+                1.0000e00,
+                4.2171e01,
+                1.1422e-02,
+                3.2814e-03,
+                1.0668e-03,
+                7.4439e-03,
+                2.2183e-03,
+            ]
+        )
         ```
 
         Each edge will have 11 attributes.
@@ -197,18 +230,9 @@ class DistEdgeAttrs(EmbeddedModel):
         - Next 2 values represent embeddings for `DistEdgeType`
         - 6th element: `capacity_kva`
         - 7th element: `length_miles`
-        - 8th element: `r0 ; Zero Sequence Resistance`
-        - 9th element: `r1 ; Positive Sequence Resistance`
-        - 10th element: `x0 ; Zero Sequence Reactance`
-        - 11th element: `x1 ; Positive Sequence Reactance`
-
     """
 
     # num_phase: Annotated[NumPhase, serializer]
     capacity_kva: Annotated[float, Field()]
     edge_type: Annotated[DistEdgeType, serializer]
     length_miles: Annotated[float, Field(ge=0)]
-    r0: float
-    r1: float
-    x0: float
-    x1: float
