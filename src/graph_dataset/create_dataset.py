@@ -96,20 +96,30 @@ def create_dataset(
     db = SQLiteDatabase(path=sqlite_file, name=table_name)
     try:
         counter = 0
-        sys = _read_system_json(json_file_path)
-        networks = get_transformer_sub_graphs(get_networkx_model(sys))
-        if dist_xmfr_graphs:
+        json_files = (
+            [json_file_path]
+            if not json_file_path.is_dir()
+            else [
+                item
+                for item in json_file_path.glob("**/*")
+                if item.is_file() and item.suffix.lower() == ".json"
+            ]
+        )
+        for json_file in json_files:
+            sys = _read_system_json(json_file)
             networks = get_transformer_sub_graphs(get_networkx_model(sys))
-        else:
-            networks = get_node_graphs(
-                get_networkx_model(sys),
-                lt=min_num_transformers,
-                gt=max_num_transformers,
-            )
-        if networks is None:
-            raise GraphNotFoundError("No networks found.")
-        for network_ in networks:
-            db[counter] = get_data_object(network_)
-            counter += 1
+            if dist_xmfr_graphs:
+                networks = get_transformer_sub_graphs(get_networkx_model(sys))
+            else:
+                networks = get_node_graphs(
+                    get_networkx_model(sys),
+                    lt=min_num_transformers,
+                    gt=max_num_transformers,
+                )
+            if networks is None:
+                raise GraphNotFoundError("No networks found.")
+            for network_ in networks:
+                db[counter] = get_data_object(network_)
+                counter += 1
     finally:
         db.close()

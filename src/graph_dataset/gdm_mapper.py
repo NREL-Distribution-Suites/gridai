@@ -1,8 +1,9 @@
 """This module contains an opendss parser utility functions."""
 
+from collections import defaultdict
 import logging
 import copy
-from typing import NamedTuple, Any
+from typing import NamedTuple, Any, Type
 
 import networkx as nx
 from gdm import (
@@ -20,6 +21,7 @@ from gdm import (
     MatrixImpedanceSwitch,
     MatrixImpedanceFuse,
 )
+from infrasys.component import Component
 
 from graph_dataset.interfaces import (
     DistEdgeAttrs,
@@ -94,16 +96,14 @@ class PowerPair(NamedTuple):
     reactive: float
 
 
-def _get_total_load_kw_kvar(system: DistributionSystem, bus_name) -> PowerPair:
+def _get_total_load_kw_kvar(loads: list[DistributionLoad]) -> PowerPair:
     """Internal method to get total load power."""
-    connected_loads: list[DistributionLoad] = system.get_bus_connected_components(
-        bus_name, DistributionLoad
-    )
-    if not connected_loads:
+
+    if not loads:
         return PowerPair(active=0, reactive=0)
 
     load_p, load_q = 0, 0
-    for load in connected_loads:
+    for load in loads:
         load_p += (
             sum(
                 ph_load.z_real + ph_load.i_real + ph_load.p_real
@@ -123,31 +123,29 @@ def _get_total_load_kw_kvar(system: DistributionSystem, bus_name) -> PowerPair:
     return PowerPair(active=load_p, reactive=load_q)
 
 
-def _get_total_solar_kw_kvar(system: DistributionSystem, bus_name) -> PowerPair:
+def _get_total_solar_kw_kvar(solars: list[DistributionSolar]) -> PowerPair:
     """Internal method to get total solar power."""
-    connected_solars: list[DistributionSolar] = system.get_bus_connected_components(
-        bus_name, DistributionSolar
-    )
-    if not connected_solars:
+
+    if not solars:
         return PowerPair(active=0, reactive=0)
 
     solar_power = 0
-    for solar in connected_solars:
+    for solar in solars:
         solar_power += solar.equipment.rated_capacity.to("kilowatt").magnitude
 
     return PowerPair(active=solar_power, reactive=0)
 
 
-def _get_total_capacitor_kw_kvar(system: DistributionSystem, bus_name) -> PowerPair:
+def _get_total_capacitor_kw_kvar(
+    caps: list[DistributionCapacitor],
+) -> PowerPair:
     """Internal method to get total capacitor power."""
-    connected_caps: list[DistributionCapacitor] = system.get_bus_connected_components(
-        bus_name, DistributionCapacitor
-    )
-    if not connected_caps:
+
+    if not caps:
         return PowerPair(active=0, reactive=0)
 
     reactive_power = 0
-    for cap in connected_caps:
+    for cap in caps:
         reactive_power += sum(
             ph_cap.rated_capacity.to("kilovar").magnitude
             for ph_cap in cap.equipment.phase_capacitors
@@ -174,18 +172,37 @@ def _get_node_type(
         return NodeType.LOAD
 
 
+def _get_bus_component_mapping(
+    system: DistributionSystem, component_type: Type[Component]
+) -> dict[str, list[Component]]:
+    """Internal function to get bus component mapping."""
+
+    bus_component_mapper = defaultdict(list)
+    for comp in system.get_components(component_type):
+        if not isinstance(comp, component_type):
+            msg = f"{comp=} must be an instance of {component_type}"
+            raise ValueError(msg)
+        if "bus" not in comp.model_fields:
+            msg = f"{comp=} does not have `bus` field."
+            raise ValueError()
+        bus_component_mapper[comp.bus.name].append(comp)
+    return bus_component_mapper
+
+
 @timeit
 def add_buses_as_nodes(system: DistributionSystem, graph: nx.Graph) -> nx.Graph:
     """Function to add buses in the graph."""
 
     buses: list[DistributionBus] = list(system.get_components(DistributionBus))
-
+    solar_mapper = _get_bus_component_mapping(system, DistributionSolar)
+    capacitor_mapper = _get_bus_component_mapping(system, DistributionCapacitor)
+    vsource_mapper = _get_bus_component_mapping(system, DistributionVoltageSource)
+    load_mapper = _get_bus_component_mapping(system, DistributionLoad)
     for bus in buses:
         phase = "".join(sorted([el.value for el in bus.phases]))
-        load_power = _get_total_load_kw_kvar(system, bus.name)
-        solar_power = _get_total_solar_kw_kvar(system, bus.name)
-        cap_power = _get_total_capacitor_kw_kvar(system, bus.name)
-        vsource = list(system.get_components(DistributionVoltageSource))
+        load_power = _get_total_load_kw_kvar(load_mapper.get(bus.name, []))
+        solar_power = _get_total_solar_kw_kvar(solar_mapper.get(bus.name, []))
+        cap_power = _get_total_capacitor_kw_kvar(capacitor_mapper.get(bus.name, []))
         node_attr = DistNodeAttrs(
             num_nodes=len(bus.phases),
             kv_level=bus.nominal_voltage.to("kilovolt").magnitude,
@@ -195,7 +212,9 @@ def add_buses_as_nodes(system: DistributionSystem, graph: nx.Graph) -> nx.Graph:
             active_generation_kw=solar_power.active,
             reactive_generation_kw=cap_power.reactive,
             node_type=(
-                NodeType.SOURCE if vsource else _get_node_type(load_power, solar_power, cap_power)
+                NodeType.SOURCE
+                if bus.name in vsource_mapper
+                else _get_node_type(load_power, solar_power, cap_power)
             ),
         )
         graph.add_node(bus.name, attr=node_attr)
@@ -276,15 +295,18 @@ def get_node_graphs(graph: nx.Graph, lt: int, gt: int) -> list[nx.Graph]:
     sub_graphs = []
     dfs_tree = get_source_dfs(graph)
 
+    transformer_nodes_set = set()
+
     for node in graph.nodes:
         dfs_sub_graph = get_sub_dfs_tree(
             dfs_tree=dfs_tree,
             graph=graph,
             start_node=node,
         )
-        num_trans = len(get_transformers_from_graph(dfs_sub_graph))
+        trs = set(get_transformers_from_graph(dfs_sub_graph))
 
-        if lt <= num_trans <= gt:
+        if lt <= len(trs) <= gt and not (transformer_nodes_set & trs):
+            transformer_nodes_set.update(trs)
             dfs_sub_graph.nodes[node]["attr"].node_type = NodeType.SOURCE
             sub_graphs.append(copy.deepcopy(dfs_sub_graph))
 
@@ -349,7 +371,7 @@ def get_networkx_model(sys: DistributionSystem) -> nx.Graph:
 
     loops = list(nx.simple_cycles(graph))
     if loops:
-        print(f"This network has loop {loops=}")
-        return None
+        msg = f"This network has {loops=}"
+        raise ValueError(msg)
 
     return graph

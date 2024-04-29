@@ -1,4 +1,4 @@
-""" This module contains function to plot database. """
+"""This module contains function to plot database."""
 
 from torch_geometric.data import Data
 from torch_geometric.utils import to_networkx
@@ -32,15 +32,13 @@ def plot_dataset(data: Data) -> None:
     """
 
     node_attrs = {
-        id_: DistNodeAttrs.from_array(item).model_dump()
-        for id_, item in enumerate(data.x)
+        id_: DistNodeAttrs.from_array(item).model_dump() for id_, item in enumerate(data.x)
     }
     edge_indexes = [
-        (float(el) for el in x)
-        for x in zip(list(data.edge_index[0]), list(data.edge_index[1]))
+        (float(el) for el in x) for x in zip(list(data.edge_index[0]), list(data.edge_index[1]))
     ]
     edge_attrs = {
-        edge_indexes[id_]: DistEdgeAttrs.from_array(item[3:]).model_dump() # TODO: Remove [3:] later
+        edge_indexes[id_]: DistEdgeAttrs.from_array(item).model_dump()  # TODO: Remove [3:] later
         for id_, item in enumerate(data.edge_attr)
     }
 
@@ -52,27 +50,25 @@ def plot_dataset(data: Data) -> None:
     node_labels = {}
     for node, node_data in g.nodes.data():
         node_labels[node] = (
-            f"""{','.join([item.name for item in list(PhaseType) 
+            f"""{','.join([item.name for item in list(PhaseType)
                 if item.value == node_data['phase_type']])}"""
-            + f""" : {','.join([item.name for item in list(NodeType) 
+            + f""" : {','.join([item.name for item in list(NodeType)
                 if item.value == node_data['node_type']])}"""
         )
 
     edge_labels = {}
     for edge in g.edges:
         edge_data = g.get_edge_data(*edge)
-        edge_labels[edge] = (
-            f"""{edge_data['edge_type']} phase, {round(edge_data['length_miles']*1609.34, 1)}m
+        edge_labels[
+            edge
+        ] = f"""{edge_data['edge_type']} phase, {round(edge_data['length_miles']*1609.34, 1)}m
             """
-        )
 
     for node_type in list(NodeType):
         nx.draw_networkx_nodes(
             g,
             pos,
-            nodelist=[
-                x for x in g.nodes if g.nodes[x]["node_type"] == node_type.value
-            ],
+            nodelist=[x for x in g.nodes if g.nodes[x]["node_type"] == node_type.value],
             node_size=600,
             node_color=NODE_COLOR_DICT[node_type.value],
         )
@@ -81,18 +77,12 @@ def plot_dataset(data: Data) -> None:
             g,
             pos,
             edgelist=[
-                edge
-                for edge in g.edges
-                if g.get_edge_data(*edge)["edge_type"] == edge_type.value
+                edge for edge in g.edges if g.get_edge_data(*edge)["edge_type"] == edge_type.value
             ],
             edge_color=EDGE_COLOR_DICT[edge_type.value],
         )
-    nx.draw_networkx_labels(
-        g, pos, node_labels, font_size=8, font_color="black"
-    )
-    nx.draw_networkx_edge_labels(
-        g, pos, edge_labels, font_size=10, font_color="orange"
-    )
+    nx.draw_networkx_labels(g, pos, node_labels, font_size=8, font_color="black")
+    nx.draw_networkx_edge_labels(g, pos, edge_labels, font_size=10, font_color="orange")
     plt.tight_layout()
     plt.axis("off")
     plt.show()

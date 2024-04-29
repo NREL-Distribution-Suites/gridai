@@ -142,10 +142,14 @@ class DistNodeAttrs(EmbeddedModel):
 
     Example Tensor:
         ```python
-        Data(x=[5, 17], edge_index=[2, 4], edge_attr=[4, 11])
+        Data(x=[22, 21], edge_index=[2, 21], edge_attr=[21, 4])
 
         tensor(
             [
+                1.0000,
+                0.0000,
+                0.0000,
+                0.0000,
                 0.0000,
                 0.0000,
                 0.0000,
@@ -155,27 +159,27 @@ class DistNodeAttrs(EmbeddedModel):
                 0.0000,
                 0.0000,
                 0.0000,
-                1.0000,
                 0.0000,
                 0.0000,
                 0.0000,
                 0.0000,
                 0.0000,
                 0.0000,
-                0.1201,
+                0.0000,
+                7.1996,
             ]
         )
         ```
 
-        Each node will have 17 attributes.
+        Each node will have 21 attributes.
 
         - First 5 values represent embedding for `Node Type`
-        - Next 7 values represent embeddings for `Phase Type`
-        - 13th element: `active_demand_kw`
-        - 14th element: `reactive_demand_kw`
-        - 15th element: `active_generation_kw`
-        - 16th element: `reactive_generation_kw`
-        - 17th element: `kv_level`
+        - Next 11 values represent embeddings for `Phase Type`
+        - 17th element: `active_demand_kw`
+        - 18th element: `reactive_demand_kw`
+        - 19th element: `active_generation_kw`
+        - 20th element: `reactive_generation_kw`
+        - 21st element: `kv_level`
 
     """
 
@@ -205,31 +209,16 @@ class DistEdgeAttrs(EmbeddedModel):
 
     Example Tensor:
         ```python
-        Data(x=[5, 17], edge_index=[2, 4], edge_attr=[4, 11])
+        Data(x=[22, 21], edge_index=[2, 21], edge_attr=[21, 4])
 
-        tensor(
-            [
-                0.0000e00,
-                1.0000e00,
-                0.0000e00,
-                0.0000e00,
-                1.0000e00,
-                4.2171e01,
-                1.1422e-02,
-                3.2814e-03,
-                1.0668e-03,
-                7.4439e-03,
-                2.2183e-03,
-            ]
-        )
+        tensor([0.0000e00, 1.0000e00, 1.1879e03, 4.9281e-02])
         ```
 
-        Each edge will have 11 attributes.
+        Each edge will have 4 attributes.
 
-        - First 3 values represent embedding for `Num Phase`
         - Next 2 values represent embeddings for `DistEdgeType`
-        - 6th element: `capacity_kva`
-        - 7th element: `length_miles`
+        - 3rd element: `capacity_kva`
+        - 4th element: `length_miles`
     """
 
     # num_phase: Annotated[NumPhase, serializer]
