@@ -140,46 +140,45 @@ class EmbeddedModel(BaseModel):
 class DistNodeAttrs(EmbeddedModel):
     """Interface for distribution node attributes.
 
-    Example Tensor:
-        ```python
-        Data(x=[22, 21], edge_index=[2, 21], edge_attr=[21, 4])
+    Example
+    =======
 
-        tensor(
-            [
-                1.0000,
-                0.0000,
-                0.0000,
-                0.0000,
-                0.0000,
-                0.0000,
-                0.0000,
-                0.0000,
-                1.0000,
-                0.0000,
-                0.0000,
-                0.0000,
-                0.0000,
-                0.0000,
-                0.0000,
-                0.0000,
-                0.0000,
-                0.0000,
-                0.0000,
-                0.0000,
-                7.1996,
-            ]
-        )
-        ```
+    >>> Data(x=[22, 21], edge_index=[2, 21], edge_attr=[21, 4])
+    tensor(
+        [
+            1.0000,
+            0.0000,
+            0.0000,
+            0.0000,
+            0.0000,
+            0.0000,
+            0.0000,
+            0.0000,
+            1.0000,
+            0.0000,
+            0.0000,
+            0.0000,
+            0.0000,
+            0.0000,
+            0.0000,
+            0.0000,
+            0.0000,
+            0.0000,
+            0.0000,
+            0.0000,
+            7.1996,
+        ]
+    )
 
-        Each node will have 21 attributes.
+    Each node will have 21 attributes.
 
-        - First 5 values represent embedding for `Node Type`
-        - Next 11 values represent embeddings for `Phase Type`
-        - 17th element: `active_demand_kw`
-        - 18th element: `reactive_demand_kw`
-        - 19th element: `active_generation_kw`
-        - 20th element: `reactive_generation_kw`
-        - 21st element: `kv_level`
+    - First 5 values represent embedding for `Node Type`
+    - Next 11 values represent embeddings for `Phase Type`
+    - 17th element: `active_demand_kw`
+    - 18th element: `reactive_demand_kw`
+    - 19th element: `active_generation_kw`
+    - 20th element: `reactive_generation_kw`
+    - 21st element: `kv_level`
 
     """
 
@@ -207,18 +206,18 @@ class DistNodeAttrs(EmbeddedModel):
 class DistEdgeAttrs(EmbeddedModel):
     """Interface for distribution edge attributes.
 
-    Example Tensor:
-        ```python
-        Data(x=[22, 21], edge_index=[2, 21], edge_attr=[21, 4])
+    Example
+    =======
 
-        tensor([0.0000e00, 1.0000e00, 1.1879e03, 4.9281e-02])
-        ```
+    >>> Data(x=[22, 21], edge_index=[2, 21], edge_attr=[21, 4])
+    tensor([0.0000e00, 1.0000e00, 1.1879e03, 4.9281e-02])
 
-        Each edge will have 4 attributes.
 
-        - Next 2 values represent embeddings for `DistEdgeType`
-        - 3rd element: `capacity_kva`
-        - 4th element: `length_miles`
+    Each edge will have 4 attributes.
+
+    - Next 2 values represent embeddings for `DistEdgeType`
+    - 3rd element: `capacity_kva`
+    - 4th element: `length_miles`
     """
 
     # num_phase: Annotated[NumPhase, serializer]

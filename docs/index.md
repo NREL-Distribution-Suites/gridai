@@ -1,9 +1,10 @@
+
 # Welcome to Graph Dataset Repo
 
 ## Installation
 
 Use following commands to install
-```cmd title="Installation Steps"
+```bash title="Installation Steps"
 git clone https://github.nrel.gov/GATES-TLDRD/graph-dataset.git
 cd graph-dataset
 pip install -e.
@@ -13,29 +14,30 @@ pip install -e.
 
 Use following command to see available commands.
 
-```cmd
+```bash
 graphd --help
 ```
 
 You will see something like this.
-```
+```bash
 Usage: graphd [OPTIONS] COMMAND [ARGS]...
 
   Entry point
 
 Options:
-  --help  Show this message and exit.    
+  --help  Show this message and exit.
 
 Commands:
-  generate-dataset  Command line function to...
+  generate-dataset  Command line function to generate geojsons from...
+  generate-stats    Function to dump stats around the dataset.
 ```
 
 ## How to create a dataset ?
 
 The command `generate-dataset` can convert all opendss models available in the parent folder by recursively searching for all valid opendss models.
 
-```
-graphd generate-dataset -f <parent-path>
+```bash
+graphd generate-dataset -j <system-json-path>
 ```
 
 This will create a sqlite db file stroing all training data in `pytorch.data.Data` format.
@@ -48,7 +50,7 @@ This will create a sqlite db file stroing all training data in `pytorch.data.Dat
 >>> len(db)
 51
 >>> db[0]
-Data(x=[104750, 8], edge_index=[2, 104742], edge_attr=[104742, 8])
+Data(x=[22, 21], edge_index=[2, 21], edge_attr=[21, 4])
 ```
 
 ## Getting NodeObject and EdgeObject
@@ -62,25 +64,20 @@ You can use following snippet to convert node attributes back to an instance of
 >>> from rich import print
 >>> db = SQLiteDatabase(path="dataset.sqlite",name="data_table")
 >>> print(DistNodeAttrs.from_array(db.x[0]))
->>> print(DistEdgeAttrs.from_array(db.edge_attr[0]))
 DistNodeAttrs(
-    node_type=<NodeType.SOURCE: 1>,
-    active_demand_kw=0.0,
-    reactive_demand_kw=0.0,
-    active_generation_kw=0.0,
-    reactive_generation_kw=0.0,
-    phase_type=<PhaseType.A: 2>,
-    kv_level=7.199557781219482
+   node_type=<NodeType.LOAD: 2>,
+   active_demand_kw=5.726587772369385,
+   reactive_demand_kw=1.691259503364563,
+   active_generation_kw=0.0,
+   reactive_generation_kw=0.0,
+   phase_type=<PhaseType.NS1S2: 11>,
+   kv_level=0.1200888529419899
 )
+>>> print(DistEdgeAttrs.from_array(db.edge_attr[0]))
 DistEdgeAttrs(
-    num_phase=<NumPhase.ONE: 1>,
-    capacity_kva=10.0,
-    edge_type=<DistEdgeType.TRANSFORMER: 1>,
-    length_miles=0.0,
-    r0=0.0,
-    r1=0.8321009874343872,
-    x0=0.0,
-    x1=1.0800000429153442
+   capacity_kva=25.0,
+   edge_type=<DistEdgeType.TRANSFORMER: 1>,
+   length_miles=0.0
 )
 ```
 
@@ -93,4 +90,22 @@ You can use following command to plot the dataset.
 >>> from torch_geometric.data import SQLiteDatabase
 >>> db = SQLiteDatabase(path="dataset.sqlite",name="data_table")
 >>> plot_dataset(db[0])
+```
+
+```{toctree}
+:caption: API Documentation
+:hidden: true
+
+api/index
+```
+
+
+
+
+## Indices and tables
+
+```{eval-rst}
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
 ```

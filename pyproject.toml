@@ -5,11 +5,11 @@ build-backend = "hatchling.build"
 [project]
 name = "graph-dataset"
 dynamic = ["version"]
-description = ''
+description = 'Python package for building graph dataset from GDM system.'
 readme = "README.md"
-requires-python = ">=3.10"
-license = "MIT"
-keywords = []
+requires-python = ">=3.11"
+license = ""
+keywords = ["pytorch_geometric", "grid-data-models", "python", "distribution system"]
 authors = [
   { name = "Kapil Duwadi", email = "Kapil.Duwadi@nrel.gov" },
   { name = "Aadil Latif", email = "Aadil.Latif@nrel.gov" },
@@ -17,32 +17,29 @@ authors = [
 ]
 classifiers = [
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
 ]
 dependencies = [
   "torch",
   "grid-data-models",
   "torch_geometric",
-  "pydantic",
-  "OpenDSSDirect.py",
-  "pytest",
-  "pandas",
   "networkx",
   "polars",
   "matplotlib",
+  "click"
 ]
 
 [project.optional-dependencies]
-dev = [
-  "mkdocs",
-  "mkdocstrings[python]",
-  "mkdocs-material",
-  "pre-commit",
+doc = [
+  "sphinx",
+  "pydata-sphinx-theme",
+  "myst-parser",
+  "autodoc_pydantic",
+  "sphinxcontrib-mermaid",
 ]
-lint = [
-  "pylint",
-  "black"
+dev = [
+  "pytest",
+  "pre-commit",
 ]
 
 [project.urls]
@@ -57,7 +54,6 @@ graphd = "graph_dataset.cli.cli:cli"
 path = "src/graph_dataset/__about__.py"
 
 [tool.ruff]
-# Exclude a variety of commonly ignored directories.
 exclude = [
   ".git",
   ".ruff_cache",
