@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: cadet-runners
+    runs-on: gates-tldrd-runners
 
     steps:
     - name: Set up Python
