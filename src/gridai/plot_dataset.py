@@ -5,7 +5,7 @@ from torch_geometric.utils import to_networkx
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from graph_dataset.interfaces import (
+from gridai.interfaces import (
     DistEdgeAttrs,
     DistEdgeType,
     DistNodeAttrs,

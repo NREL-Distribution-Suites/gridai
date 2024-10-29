@@ -2,8 +2,8 @@
 Node and Edge data interfaces
 =============================
 
-.. autopydantic_model:: graph_dataset.interfaces.DistNodeAttrs
+.. autopydantic_model:: gridai.interfaces.DistNodeAttrs
     :members:
 
-.. autopydantic_model:: graph_dataset.interfaces.DistEdgeAttrs
+.. autopydantic_model:: gridai.interfaces.DistEdgeAttrs
     :members:

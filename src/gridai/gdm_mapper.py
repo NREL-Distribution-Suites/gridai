@@ -23,14 +23,14 @@ from gdm import (
 )
 from infrasys.component import Component
 
-from graph_dataset.interfaces import (
+from gridai.interfaces import (
     DistEdgeAttrs,
     DistNodeAttrs,
     DistEdgeType,
     PhaseType,
     NodeType,
 )
-from graph_dataset.util import timeit
+from gridai.util import timeit
 
 
 logger = logging.getLogger(__name__)

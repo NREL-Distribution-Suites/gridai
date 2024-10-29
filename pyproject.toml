@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "graph-dataset"
+name = "gridai"
 dynamic = ["version"]
 description = 'Python package for building graph dataset from GDM system.'
 readme = "README.md"
@@ -48,10 +48,10 @@ Issues = "https://github.nrel.gov/GATES-TLDRD/graph-dataset/issues"
 Source = "https://github.nrel.gov/GATES-TLDRD/graph-dataset"
 
 [project.scripts]
-graphd = "graph_dataset.cli.cli:cli"
+graphd = "gridai.cli.cli:cli"
 
 [tool.hatch.version]
-path = "src/graph_dataset/__about__.py"
+path = "src/gridai/__about__.py"
 
 [tool.ruff]
 exclude = [
@@ -100,3 +100,5 @@ allow-direct-references = true
 "__init__.py" = ["E402", "F401"]
 "**/{tests,docs,tools}/*" = ["E402"]
 
+[tool.hatch.build.targets.wheel]
+packages = ["src/gridai"]

@@ -4,7 +4,7 @@ from pathlib import Path
 
 from torch_geometric.data import SQLiteDatabase
 
-from graph_dataset.create_dataset import create_dataset
+from gridai.create_dataset import create_dataset
 
 
 def test_creating_dataset():

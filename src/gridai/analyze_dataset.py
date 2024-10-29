@@ -1,7 +1,7 @@
 import polars as pl
 from torch_geometric.data import SQLiteDatabase
 
-from graph_dataset.constants import DATA_TABLE_NAME
+from gridai.constants import DATA_TABLE_NAME
 
 
 def analyze_dataset(db_file: str, table_name: str = DATA_TABLE_NAME):

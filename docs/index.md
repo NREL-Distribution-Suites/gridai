@@ -60,7 +60,7 @@ You can use following snippet to convert node attributes back to an instance of
 
 ```python
 >>> from torch_geometric.data import SQLiteDatabase
->>> from graph_dataset.interfaces import DistNodeAttrs, DistEdgeAttrs
+>>> from gridai.interfaces import DistNodeAttrs, DistEdgeAttrs
 >>> from rich import print
 >>> db = SQLiteDatabase(path="dataset.sqlite",name="data_table")
 >>> print(DistNodeAttrs.from_array(db.x[0]))
@@ -86,7 +86,7 @@ DistEdgeAttrs(
 You can use following command to plot the dataset.
 
 ```python
->>> from graph_dataset.plot_dataset import plot_dataset
+>>> from gridai.plot_dataset import plot_dataset
 >>> from torch_geometric.data import SQLiteDatabase
 >>> db = SQLiteDatabase(path="dataset.sqlite",name="data_table")
 >>> plot_dataset(db[0])

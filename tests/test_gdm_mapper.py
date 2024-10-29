@@ -5,7 +5,7 @@ from pathlib import Path
 import networkx as nx
 from gdm import DistributionSystem
 
-from graph_dataset.gdm_mapper import get_networkx_model
+from gridai.gdm_mapper import get_networkx_model
 
 
 def test_generating_networkx_graph():

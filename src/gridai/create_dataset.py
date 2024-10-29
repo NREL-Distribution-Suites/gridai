@@ -8,14 +8,14 @@ from torch_geometric.data import Data, SQLiteDatabase
 import torch
 from gdm import DistributionSystem
 
-from graph_dataset.gdm_mapper import (
+from gridai.gdm_mapper import (
     get_networkx_model,
     get_node_graphs,
     get_transformer_sub_graphs,
 )
-from graph_dataset import interfaces
-from graph_dataset.util import timeit
-from graph_dataset.exceptions import GraphNotFoundError
+from gridai import interfaces
+from gridai.util import timeit
+from gridai.exceptions import GraphNotFoundError
 
 
 def get_data_object(graph: nx.Graph):

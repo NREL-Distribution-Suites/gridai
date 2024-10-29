@@ -3,10 +3,10 @@
 from pathlib import Path
 
 import click
-from graph_dataset.analyze_dataset import analyze_dataset
-from graph_dataset.constants import DATA_TABLE_NAME
+from gridai.analyze_dataset import analyze_dataset
+from gridai.constants import DATA_TABLE_NAME
 
-from graph_dataset.create_dataset import create_dataset
+from gridai.create_dataset import create_dataset
 
 
 @click.command()

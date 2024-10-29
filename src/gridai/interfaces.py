@@ -8,7 +8,7 @@ import enum
 from typing import Optional, Any
 import typing
 from typing_extensions import Annotated
-from graph_dataset.exceptions import NotSupportedFieldExists
+from gridai.exceptions import NotSupportedFieldExists
 
 from pydantic import BaseModel, model_validator, PlainSerializer, Field
 
