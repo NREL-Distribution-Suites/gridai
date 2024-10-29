@@ -15,12 +15,12 @@ pip install -e.
 Use following command to see available commands.
 
 ```bash
-graphd --help
+gridai --help
 ```
 
 You will see something like this.
 ```bash
-Usage: graphd [OPTIONS] COMMAND [ARGS]...
+Usage: gridai [OPTIONS] COMMAND [ARGS]...
 
   Entry point
 
@@ -37,7 +37,7 @@ Commands:
 The command `generate-dataset` can convert all opendss models available in the parent folder by recursively searching for all valid opendss models.
 
 ```bash
-graphd generate-dataset -j <system-json-path>
+gridai generate-dataset -j <system-json-path>
 ```
 
 This will create a sqlite db file stroing all training data in `pytorch.data.Data` format.
@@ -63,7 +63,7 @@ You can use following snippet to convert node attributes back to an instance of
 >>> from gridai.interfaces import DistNodeAttrs, DistEdgeAttrs
 >>> from rich import print
 >>> db = SQLiteDatabase(path="dataset.sqlite",name="data_table")
->>> print(DistNodeAttrs.from_array(db.x[0]))
+>>> print(DistNodeAttrs.from_array(db[0].x[0]))
 DistNodeAttrs(
    node_type=<NodeType.LOAD: 2>,
    active_demand_kw=5.726587772369385,
@@ -73,7 +73,7 @@ DistNodeAttrs(
    phase_type=<PhaseType.NS1S2: 11>,
    kv_level=0.1200888529419899
 )
->>> print(DistEdgeAttrs.from_array(db.edge_attr[0]))
+>>> print(DistEdgeAttrs.from_array(db[0].edge_attr[0]))
 DistEdgeAttrs(
    capacity_kva=25.0,
    edge_type=<DistEdgeType.TRANSFORMER: 1>,

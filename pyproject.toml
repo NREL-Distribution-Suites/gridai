@@ -50,7 +50,7 @@ Issues = "https://github.nrel.gov/GATES-TLDRD/graph-dataset/issues"
 Source = "https://github.nrel.gov/GATES-TLDRD/graph-dataset"
 
 [project.scripts]
-graphd = "gridai.cli.cli:cli"
+gridai = "gridai.cli.cli:cli"
 
 [tool.hatch.version]
 path = "src/gridai/__about__.py"
