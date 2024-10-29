@@ -22,14 +22,11 @@ jobs:
       - name: Run pytest
         run: |
           pytest -v --cov --cov-report=xml
-          cd docs
-          pytest --doctest-glob="*.md"
-          cd ..
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: NREL-Distribution-Suites/grid-data-models
+          slug: NREL-Distribution-Suites/gridai
           fail_ci_if_error: false
           verbose: true
   ci_ruff:

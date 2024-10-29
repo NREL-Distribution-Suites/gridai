@@ -1,4 +1,5 @@
-""" Module to stroe utility functions. """
+"""Module to stroe utility functions."""
+
 # standard imports
 import time
 
