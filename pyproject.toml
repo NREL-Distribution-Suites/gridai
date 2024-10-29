@@ -41,6 +41,7 @@ dev = [
   "pytest",
   "pytest-cov",
   "pre-commit",
+  "ruff"
 ]
 
 [project.urls]
