@@ -11,6 +11,6 @@ from graph_dataset.gdm_mapper import get_networkx_model
 def test_generating_networkx_graph():
     """Test function to generate networkx representation from system json fule"""
 
-    json_file = Path(__file__).parent / "data" / "p1udt813.json"
+    json_file = Path(__file__).parent / "data" / "p10_gdm.json"
     graph = get_networkx_model(DistributionSystem.from_json(json_file))
     assert isinstance(graph, nx.Graph)

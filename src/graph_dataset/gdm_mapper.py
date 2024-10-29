@@ -12,7 +12,7 @@ from gdm import (
     DistributionLoad,
     DistributionSolar,
     DistributionCapacitor,
-    DistributionBranch,
+    DistributionBranchBase,
     MatrixImpedanceBranch,
     SequenceImpedanceBranch,
     GeometryBranch,
@@ -73,7 +73,7 @@ def _get_ampacity_from_branch(branch: Any):
 def add_line_edges(system: DistributionSystem, graph: nx.Graph) -> nx.Graph:
     """Function to add line segment edges in the graph."""
 
-    branches: list[DistributionBranch] = list(system.get_components(DistributionBranch))
+    branches: list[DistributionBranchBase] = list(system.get_components(DistributionBranchBase))
     for branch in branches:
         edge_attrs = DistEdgeAttrs(
             num_phase=len(branch.phases),
@@ -105,18 +105,12 @@ def _get_total_load_kw_kvar(loads: list[DistributionLoad]) -> PowerPair:
     load_p, load_q = 0, 0
     for load in loads:
         load_p += (
-            sum(
-                ph_load.z_real + ph_load.i_real + ph_load.p_real
-                for ph_load in load.equipment.phase_loads
-            )
+            sum(ph_load.real_power for ph_load in load.equipment.phase_loads)
             .to("kilowatt")
             .magnitude
         )
         load_q += (
-            sum(
-                ph_load.z_imag + ph_load.i_imag + ph_load.p_imag
-                for ph_load in load.equipment.phase_loads
-            )
+            sum(ph_load.reactive_power for ph_load in load.equipment.phase_loads)
             .to("kilovar")
             .magnitude
         )

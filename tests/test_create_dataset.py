@@ -14,7 +14,7 @@ def test_creating_dataset():
         sqlite_file, table_name = "dataset.sqlite", "data_table"
         dataset_file = Path(sqlite_file)
         create_dataset(
-            Path(__file__).parent / "data" / "p1udt813.json",
+            Path(__file__).parent / "data" / "p10_gdm.json",
             sqlite_file=sqlite_file,
             table_name=table_name,
         )
