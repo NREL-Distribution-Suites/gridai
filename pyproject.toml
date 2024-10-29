@@ -39,6 +39,7 @@ doc = [
 ]
 dev = [
   "pytest",
+  "pytest-cov",
   "pre-commit",
 ]
 
