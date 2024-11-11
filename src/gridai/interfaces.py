@@ -2,33 +2,29 @@
 attributes.
 """
 
-# standard imports
-from enum import IntEnum
-import enum
-from typing import Optional, Any
-import typing
+from enum import Enum
+from typing import Any, Optional, Self
 from typing_extensions import Annotated
-from gridai.exceptions import NotSupportedFieldExists
 
 from pydantic import BaseModel, model_validator, PlainSerializer, Field
 
 
-class NodeType(IntEnum):
+class NodeType(str, Enum):
     """Interface for node type enumerator."""
 
-    SOURCE = 1
-    LOAD = 2
-    GENERATION = 3
-    LOAD_AND_GENERATION = 4
-    OTHER = 5
+    SOURCE = "SOURCE"
+    LOAD = "LOAD"
+    GENERATION = "GENERATION"
+    LOAD_AND_GENERATION = "LOAD_AND_GENERATION"
+    OTHER = "OTHER"
 
 
-class NumPhase(IntEnum):
+class NumPhase(str, Enum):
     """Interface for node type enumerator."""
 
-    ONE = 1
-    TWO = 2
-    THREE = 3
+    ONE = "ONE"
+    TWO = "TWO"
+    THREE = "THREE"
 
 
 NODE_TYPE_MAPPING = {
@@ -39,147 +35,72 @@ NODE_TYPE_MAPPING = {
 }
 
 
-class DistEdgeType(IntEnum):
+class DistEdgeType(str, Enum):
     """Interface for dist edge type."""
 
-    TRANSFORMER = 1
-    CONDUCTOR = 2
+    TRANSFORMER = "TRANSFORMER"
+    CONDUCTOR = "CONDUCTOR"
 
 
-class PhaseType(IntEnum):
+class PhaseType(str, Enum):
     """Interface for dist edge type."""
 
-    ABC = 1
-    A = 2
-    B = 3
-    C = 4
-    AB = 5
-    BC = 6
-    CA = 7
-    ABCN = 1
-    AN = 2
-    BN = 3
-    CN = 4
-    BA = 5
-    CB = 6
-    AC = 7
-    S1 = 8
-    S2 = 9
-    S1S2 = 10
-    NS1S2 = 11
-    S2S1 = 10
+    ABC = "ABC"
+    A = "A"
+    B = "B"
+    C = "C"
+    AB = "AB"
+    BC = "BC"
+    CA = "CA"
+    ABCN = "ABCN"
+    AN = "AN"
+    BN = "BN"
+    CN = "CN"
+    BA = "AB"
+    CB = "BC"
+    AC = "CA"
+    S1 = "S1"
+    S2 = "S2"
+    S1S2 = "S1S2"
+    NS1S2 = "S1S2N"
+    S2S1 = "S1S2"
+    S1N = "S1N"
+    S2N = "S2N"
 
 
 serializer = PlainSerializer(lambda x: x.value, when_used="always")
 
 
-def get_embeddings(enum_type: IntEnum, value: Any):
-    """Returns embedding."""
-    return [1 if item == value else 0 for item in list(enum_type)]
+class GraphBaseModel(BaseModel):
+    """Base interface for node and edges."""
 
-
-def get_enum_fields(model_class: typing.Type[BaseModel]):
-    """Returns a list of enumerated fields."""
-    return [
-        field
-        for field, info in model_class.model_fields.items()
-        if isinstance(info.annotation, enum.EnumType)
-    ]
-
-
-def get_float_fields(model_class: typing.Type[BaseModel]):
-    """Returns a list of float fields."""
-    return [
-        field
-        for field, info in model_class.model_fields.items()
-        if info.annotation in [float, typing.Optional[float]]
-    ]
-
-
-class EmbeddedModel(BaseModel):
-    """Implements get attributes for data models."""
+    def to_array(self):
+        return list(self.model_dump().values())
 
     @classmethod
-    def from_array(cls, values_list: list[float]):
-        """Create an instance for values list."""
-        values_list = [float(el) for el in values_list]
-        enum_fields = get_enum_fields(cls)
-        float_fields = get_float_fields(cls)
-
-        enum_dict = {}
-        current_index = 0
-        for enum_field in enum_fields:
-            enum_list = list(cls.model_fields[enum_field].annotation)
-            enum_length = len(enum_list)
-            sub_array = values_list[current_index : (current_index + enum_length)]
-            for enum_value in enum_list:
-                if sub_array == get_embeddings(type(enum_value), enum_value):
-                    enum_dict[enum_field] = enum_value
-                    break
-            current_index += enum_length
-        float_dict = dict(zip(float_fields, values_list[current_index:]))
-        return cls(**enum_dict, **float_dict)
-
-    def get_attr_list(self):
-        """Returns embeddings."""
-
-        enum_fields = get_enum_fields(self)
-        float_fields = get_float_fields(self)
-
-        if (len(enum_fields) + len(float_fields)) != len(self.model_fields):
-            msg = f"Field other than float and enum exists {self=}"
-            raise NotSupportedFieldExists(msg)
-
-        return [
-            el
-            for field in enum_fields
-            for el in get_embeddings(self.model_fields[field].annotation, getattr(self, field))
-        ] + [getattr(self, field) for field in float_fields]
+    def from_array(cls, values: list[Any]) -> Self:
+        return cls.model_validate(dict(zip(cls.model_fields.keys(), values)))
 
 
-class DistNodeAttrs(EmbeddedModel):
+class DistNodeAttrs(GraphBaseModel):
     """Interface for distribution node attributes.
 
     Example
     =======
 
-    >>> Data(x=[22, 21], edge_index=[2, 21], edge_attr=[21, 4])
-    tensor(
-        [
-            1.0000,
-            0.0000,
-            0.0000,
-            0.0000,
-            0.0000,
-            0.0000,
-            0.0000,
-            0.0000,
-            1.0000,
-            0.0000,
-            0.0000,
-            0.0000,
-            0.0000,
-            0.0000,
-            0.0000,
-            0.0000,
-            0.0000,
-            0.0000,
-            0.0000,
-            0.0000,
-            7.1996,
-        ]
-    )
+    >>> data = Data(x=[3], edge_index=[2, 2], edge_attr=[2])
+    >>> data.x[0]
+        ['SOURCE', 0.0, 0.0, 0.0, 0.0, 'BC', 7.199557856794634]
 
-    Each node will have 21 attributes.
+    Each node is presented as array with 7 elements in it.
 
-    - First 5 values represent embedding for `Node Type`
-    - Next 11 values represent embeddings for `Phase Type`
-    - 17th element: `active_demand_kw`
-    - 18th element: `reactive_demand_kw`
-    - 19th element: `active_generation_kw`
-    - 20th element: `reactive_generation_kw`
-    - 21st element: `kv_level`
-
+    - 1st element: `node_type`
+    - 2nd element: `active_demand_kw`
+    - 3rd element: `reactive_demand_kw`
+    - 4th element: `active_generation_kw`
+    - 5th element: `reactive_generation_kw`
+    - 6th element: `phase_type`
+    - 7th element: `kv_level`
     """
 
     node_type: Annotated[NodeType, serializer] = None
@@ -203,21 +124,22 @@ class DistNodeAttrs(EmbeddedModel):
         return self
 
 
-class DistEdgeAttrs(EmbeddedModel):
+class DistEdgeAttrs(GraphBaseModel):
     """Interface for distribution edge attributes.
 
     Example
     =======
 
-    >>> Data(x=[22, 21], edge_index=[2, 21], edge_attr=[21, 4])
-    tensor([0.0000e00, 1.0000e00, 1.1879e03, 4.9281e-02])
+    >>> data = Data(x=[3], edge_index=[2, 2], edge_attr=[2])
+    >>> data.edge_attr[0]
+        [25.0, 'TRANSFORMER', 0.0]
 
 
-    Each edge will have 4 attributes.
+    Each is represented as an array with three values.
 
-    - Next 2 values represent embeddings for `DistEdgeType`
-    - 3rd element: `capacity_kva`
-    - 4th element: `length_miles`
+    - 1st element: `capacity_kva`
+    - 2nd element: `edge_type`
+    - 3rd element: `length_miles`
     """
 
     # num_phase: Annotated[NumPhase, serializer]

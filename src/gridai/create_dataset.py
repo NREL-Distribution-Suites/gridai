@@ -27,10 +27,8 @@ def get_data_object(graph: nx.Graph):
 
     for id_, (node, node_data) in enumerate(graph.nodes(data=True)):
         node_attr: interfaces.DistNodeAttrs = node_data["attr"]
-        node_attrs.append(node_attr.get_attr_list())
+        node_attrs.append(node_attr.to_array())
         node_index_mapper[node] = id_
-
-    node_attrs = torch.tensor(node_attrs, dtype=torch.float)
 
     # Edge list
     edges = list(graph.edges())
@@ -49,9 +47,8 @@ def get_data_object(graph: nx.Graph):
 
     for _, _, edge_data in graph.edges(data=True):
         edge_attr: interfaces.DistEdgeAttrs = edge_data["attr"]
-        edge_attrs.append(edge_attr.get_attr_list())
+        edge_attrs.append(edge_attr.to_array())
 
-    edge_attrs = torch.tensor(edge_attrs, dtype=torch.float)
     return Data(x=node_attrs, edge_index=edge_list, edge_attr=edge_attrs)
 
 

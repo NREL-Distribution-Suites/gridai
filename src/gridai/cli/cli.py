@@ -13,7 +13,7 @@ from gridai.create_dataset import create_dataset
 @click.option(
     "-j",
     "--json-file",
-    help="Path to system JSON file.",
+    help="Path to system JSON file or folder of JSON files.",
 )
 @click.option(
     "-s",

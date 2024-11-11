@@ -14,14 +14,14 @@ from gridai.interfaces import (
 )
 
 NODE_COLOR_DICT = {
-    1: "tab:red",
-    2: "tab:gray",
-    3: "tab:green",
-    4: "tab:cyan",
-    5: "tab:blue",
+    "SOURCE": "tab:red",
+    "LOAD": "tab:gray",
+    "GENERATION": "tab:green",
+    "LOAD_AND_GENERATION": "tab:cyan",
+    "OTHER": "tab:blue",
 }
 
-EDGE_COLOR_DICT = {1: "tab:red", 2: "tab:blue"}
+EDGE_COLOR_DICT = {"TRANSFORMER": "tab:red", "CONDUCTOR": "tab:blue"}
 
 
 def plot_dataset(data: Data) -> None:
