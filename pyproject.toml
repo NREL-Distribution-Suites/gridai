@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = 'Python package for building graph dataset from GDM system.'
 readme = "README.md"
 requires-python = ">=3.11"
-license = ""
+license = "BSD-3-Clause"
 keywords = ["pytorch_geometric", "grid-data-models", "python", "distribution system"]
 authors = [
   { name = "Kapil Duwadi", email = "Kapil.Duwadi@nrel.gov" },

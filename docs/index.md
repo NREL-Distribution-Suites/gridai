@@ -5,9 +5,7 @@
 
 Use following commands to install
 ```bash title="Installation Steps"
-git clone https://github.nrel.gov/GATES-TLDRD/graph-dataset.git
-cd graph-dataset
-pip install -e.
+pip install gridai
 ```
 
 ## Available commands

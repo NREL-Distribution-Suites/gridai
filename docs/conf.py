@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "Graph Dataset"
-copyright = "2024, Kapil Duwadi, Aadil Latif, Andrew Glaws"
+copyright = "2024, Alliance for Sustainable Energy, LLC"
 author = "Kapil Duwadi, Aadil Latif, Andrew Glaws"
 
 # -- General configuration ---------------------------------------------------
