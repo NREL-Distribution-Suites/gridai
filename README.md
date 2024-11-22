@@ -48,7 +48,7 @@ This will create a sqlite db file stroing all training data in `pytorch.data.Dat
 >>> len(db)
 51
 >>> db[0]
-Data(x=[22, 21], edge_index=[2, 21], edge_attr=[21, 4])
+Data(x=[3], edge_index=[2, 2], edge_attr=[2])
 ```
 
 ## Getting NodeObject and EdgeObject
